@@ -20,25 +20,11 @@ const fetch = require('node-fetch');
 const request = require('request');
 const apiai = require('apiai');
 
-// let Wit = null;
-// let log = null;
-// try {
-//   // if running from repo
-//   Wit = require('../').Wit;
-//   log = require('../').log;
-// } catch (e) {
-//   Wit = require('node-wit').Wit;
-//   log = require('node-wit').log;
-// }
-
 // Webserver parameter
  const PORT = process.env.PORT || 8445;
-//
-// // Wit.ai parameters
-// const WIT_TOKEN = process.env.WIT_TOKEN;
-//
-// // Messenger API parameters
-const FB_PAGE_TOKEN = process.env.FB_PAGE_TOKEN;
+
+// Messenger API parameters
+const FB_PAGE_TOKEN = process.env.FB_PAGE_TOKEN | "12345";
 if (!FB_PAGE_TOKEN) { throw new Error('missing FB_PAGE_TOKEN') }
 //
 // let FB_VERIFY_TOKEN = null;
@@ -51,8 +37,6 @@ if (!FB_PAGE_TOKEN) { throw new Error('missing FB_PAGE_TOKEN') }
 
 
 var api = apiai("d5f0ecf21198463bb95039342a21f8e2");
-
-
 
 
 
@@ -106,44 +90,7 @@ const fbMessage = (id, text) => {
 //   }
 //   return sessionId;
 // };
-//
-// // Our bot actions
-// const actions = {
-//   send({sessionId}, {text}) {
-//     // Our bot has something to say!
-//     // Let's retrieve the Facebook user whose session belongs to
-//     const recipientId = sessions[sessionId].fbid;
-//     if (recipientId) {
-//       // Yay, we found our recipient!
-//       // Let's forward our bot response to her.
-//       // We return a promise to let our bot know when we're done sending
-//       return fbMessage(recipientId, text)
-//       .then(() => null)
-//       .catch((err) => {
-//         console.error(
-//           'Oops! An error occurred while forwarding the response to',
-//           recipientId,
-//           ':',
-//           err.stack || err
-//         );
-//       });
-//     } else {
-//       console.error('Oops! Couldn\'t find user for session:', sessionId);
-//       // Giving the wheel back to our bot
-//       return Promise.resolve()
-//     }
-//   },
-//   // You should implement your custom actions here
-//   // See https://wit.ai/docs/quickstart
-// };
-//
-// // Setting up our bot
-// const wit = new Wit({
-//   accessToken: WIT_TOKEN,
-//   actions,
-//   logger: new log.Logger(log.INFO)
-// });
-//
+
 // Starting our webserver and putting it all together
 const app = express();
 // app.use(({method, url}, rsp, next) => {
@@ -153,17 +100,17 @@ const app = express();
 //   next();
 // });
 app.use(bodyParser.json());
-//
-// // Webhook setup
-// app.get('/webhook', (req, res) => {
-//   if (req.query['hub.mode'] === 'subscribe' &&
-//     req.query['hub.verify_token'] === "open_says_me") {
-//     res.send(req.query['hub.challenge']);
-//   } else {
-//     res.sendStatus(400);
-//   }
-// });
-//
+
+// Webhook setup
+app.get('/webhook', (req, res) => {
+  if (req.query['hub.mode'] === 'subscribe' &&
+    req.query['hub.verify_token'] === "open_says_me") {
+    res.send(req.query['hub.challenge']);
+  } else {
+    res.sendStatus(400);
+  }
+});
+
 // Message handler
 app.post('/webhook', (req, res) => {
   // Parse the Messenger payload
