@@ -160,6 +160,12 @@ app.post('/webhook', (req, res) => {
   // Parse the Messenger payload
   // See the Webhook reference
   // https://developers.facebook.com/docs/messenger-platform/webhook-reference
+  
+  if(!req.body) {
+      throw new Error("there wasn't a body");
+  }
+  
+  
   const data = req.body;
 
   if (data.object === 'page') {
