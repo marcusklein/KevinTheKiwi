@@ -156,109 +156,73 @@ app.get('/webhook', (req, res) => {
 });
 
 // Message handler
-// app.post('/webhook', (req, res) => {
-//   // Parse the Messenger payload
-//   // See the Webhook reference
-//   // https://developers.facebook.com/docs/messenger-platform/webhook-reference
+app.post('/webhook', (req, res) => {
+  // Parse the Messenger payload
+  // See the Webhook reference
+  // https://developers.facebook.com/docs/messenger-platform/webhook-reference
   
-//   if(!req.body) {
-//       throw new Error("there wasn't a body");
-//   }
+  if(!req.body) {
+      throw new Error("there wasn't a body");
+  }
   
   
-//   const data = req.body;
+  const data = req.body;
 
-//   if (data.object === 'page') {
-//     data.entry.forEach(entry => {
-//       entry.messaging.forEach(event => {
-//         if (event.message) {
-//           // Yay! We got a new message!
-//           // We retrieve the Facebook user ID of the sender
-//           const sender = event.sender.id;
+  if (data.object === 'page') {
+    data.entry.forEach(entry => {
+      entry.messaging.forEach(event => {
+        if (event.message) {
+          // Yay! We got a new message!
+          // We retrieve the Facebook user ID of the sender
+          const sender = event.sender.id;
 
-//           // We retrieve the user's current session, or create one if it doesn't exist
-//           // This is needed for our bot to figure out the conversation history
-//           const sessionId = findOrCreateSession(sender);
+          // We retrieve the user's current session, or create one if it doesn't exist
+          // This is needed for our bot to figure out the conversation history
+          const sessionId = findOrCreateSession(sender);
 
-//           // We retrieve the message content
-//           const {text, attachments} = event.message;
+          // We retrieve the message content
+          const {text, attachments} = event.message;
 
-//           if (attachments) {
-//             // We received an attachment
-//             // Let's reply with an automatic message
-//             fbMessage(sender, 'Sorry I can only process text messages for now.')
-//             .catch(console.error);
-//           } else if (text) {
-//             // We received a text message
+          if (attachments) {
+            // We received an attachment
+            // Let's reply with an automatic message
+            fbMessage(sender, 'Sorry I can only process text messages for now.')
+            .catch(console.error);
+          } else if (text) {
+            // We received a text message
 
-//             // Let's forward the message to the Wit.ai Bot Engine
-//             // This will run all actions until our bot has nothing left to do
-//             wit.runActions(
-//               sessionId, // the user's current session
-//               text, // the user's message
-//               sessions[sessionId].context // the user's current session state
-//             ).then((context) => {
-//               // Our bot did everything it has to do.
-//               // Now it's waiting for further messages to proceed.
-//               console.log('Waiting for next user messages');
+            // Let's forward the message to the Wit.ai Bot Engine
+            // This will run all actions until our bot has nothing left to do
+            wit.runActions(
+              sessionId, // the user's current session
+              text, // the user's message
+              sessions[sessionId].context // the user's current session state
+            ).then((context) => {
+              // Our bot did everything it has to do.
+              // Now it's waiting for further messages to proceed.
+              console.log('Waiting for next user messages');
 
-//               // Based on the session state, you might want to reset the session.
-//               // This depends heavily on the business logic of your bot.
-//               // Example:
-//               // if (context['done']) {
-//               //   delete sessions[sessionId];
-//               // }
+              // Based on the session state, you might want to reset the session.
+              // This depends heavily on the business logic of your bot.
+              // Example:
+              // if (context['done']) {
+              //   delete sessions[sessionId];
+              // }
 
-//               // Updating the user's current session state
-//               sessions[sessionId].context = context;
-//             })
-//             .catch((err) => {
-//               console.error('Oops! Got an error from Wit: ', err.stack || err);
-//             })
-//           }
-//         } else {
-//           console.log('received event', JSON.stringify(event));
-//         }
-//       });
-//     });
-//   }
-//   res.sendStatus(200);
-// });
-
-app.post('/webhook', function (req, res) {
-  var data = req.body;
-
-  // Make sure this is a page subscription
-  if (data.object == 'page') {
-    // Iterate over each entry
-    // There may be multiple if batched
-    data.entry.forEach(function(pageEntry) {
-      var pageID = pageEntry.id;
-      var timeOfEvent = pageEntry.time;
-
-      // Iterate over each messaging event
-      pageEntry.messaging.forEach(function(messagingEvent) {
-        if (messagingEvent.optin) {
-          //receivedAuthentication(messagingEvent);
-        } else if (messagingEvent.message) {
-          console.log("got a normal message");
-          //receivedMessage(messagingEvent);
-        } else if (messagingEvent.delivery) {
-          //receivedDeliveryConfirmation(messagingEvent);
-        } else if (messagingEvent.postback) {
-          //receivedPostback(messagingEvent);
+              // Updating the user's current session state
+              sessions[sessionId].context = context;
+            })
+            .catch((err) => {
+              console.error('Oops! Got an error from Wit: ', err.stack || err);
+            })
+          }
         } else {
-          console.log("Webhook received unknown messagingEvent: ", messagingEvent);
+          console.log('received event', JSON.stringify(event));
         }
       });
     });
-
-    // Assume all went well.
-    //
-    // You must send back a 200, within 20 seconds, to let us know you've 
-    // successfully received the callback. Otherwise, the request will time out.
-    res.sendStatus(200);
   }
+  res.sendStatus(200);
 });
 
 /*
