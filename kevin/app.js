@@ -27,17 +27,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/users', users);
 
-app.get('/webhook', function(req, res) {
-  if (req.query['hub.mode'] === 'subscribe' &&
-      req.query['hub.verify_token'] === "open_says_me") {
-    console.log("Validating webhook");
-    res.status(200).send(req.query['hub.challenge']);
-  } else {
-    console.error("Failed validation. Make sure the validation tokens match.");
-    res.sendStatus(403);          
-  }  
-});
-
 app.post('/webhook', function (req, res) {
   var data = req.body;
 
@@ -96,6 +85,7 @@ function receivedMessage(event) {
     // the text we received.
     switch (messageText) {
       case 'image':
+        sendTextMessage(senderID, "you sent image");
         //sendImageMessage(senderID);
         break;
 
