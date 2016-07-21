@@ -143,7 +143,7 @@ const app = express();
 //   });
 //   next();
 // });
-// app.use(bodyParser.json({ verify: verifyRequestSignature }));
+app.use(bodyParser.json());
 
 // Webhook setup
 app.get('/webhook', (req, res) => {
